@@ -1,17 +1,28 @@
-import React from "react";
+import { useState } from "react";
 
-function PlantCard() {
+function PlantCard({ plant }) {
+  const [isSoldOut, setIsSoldOut] = useState(plant.soldOut || false);
+
+  function toggleSoldOut() {
+    const updatedSoldOut = !isSoldOut;
+    setIsSoldOut(updatedSoldOut);
+
+    fetch(`http://localhost:6001/plants/${plant.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ soldOut: updatedSoldOut }),
+    }).catch((error) => console.error("Error updating sold out status:", error));
+  }
+
   return (
-    <li className="card" data-testid="plant-item">
-      <img src={"https://via.placeholder.com/400"} alt={"plant name"} />
-      <h4>{"plant name"}</h4>
-      <p>Price: {"plant price"}</p>
-      {true ? (
-        <button className="primary">In Stock</button>
-      ) : (
-        <button>Out of Stock</button>
-      )}
-    </li>
+    <div className="plant-card" data-testid="plant-item">
+      <h3>{plant.name}</h3>
+      <img src={plant.image} alt={plant.name} width="100" />
+      <p>Price: ${plant.price}</p>
+      <button onClick={toggleSoldOut}>
+        {isSoldOut ? "Sold Out" : "Available"}
+      </button>
+    </div>
   );
 }
 
